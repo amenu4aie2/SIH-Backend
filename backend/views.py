@@ -72,3 +72,10 @@ def getEmp(request):
     print(emp.data)
     # emp = json.loads(emp.data)
     return JsonResponse({'data':emp.data})
+
+@csrf_exempt
+def getEmps(request):
+    emp = Employee.objects.all()
+    emp = EmployeeSerializer(emp,many=True)
+    print(emp.data)
+    return JsonResponse({'data':emp.data})
