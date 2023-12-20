@@ -14,6 +14,7 @@ def index(request):
 def store(request):
     if request.method == 'POST':
         data = request.POST.get('text')
+        print(data)
         s = str(data)
         senetnces = []
         sent = ''
@@ -22,6 +23,7 @@ def store(request):
             if i=='.' or i=='?' or i=='!':
                 senetnces.append(i)
                 sent = ''
+        senetnces.append(sent)
         res = {}
         for i in senetnces:
             t = doT(i)
@@ -34,9 +36,11 @@ def store(request):
                 res[t['label']]+=1
             else:
                 res[t['label']] = 1
+        print(res,type(res))
         res = json.dumps(res)
+        print(res,type(res))
         # jsont to string
-        res = str(res).replace('\"','')
+        
         empName = request.POST.get('empName')
         dateNow = datetime.datetime.now()
         emp = Employee(name=empName,date=dateNow ,jsonData=res)
