@@ -85,9 +85,10 @@ import os
 os.environ["REPLICATE_API_TOKEN"] = "r8_Zgy3QtTt9akCXmztPXRasxZWDHBnjGh3gFIFx"
 
 def replme(request):
+    prompt = request.GET.get('prompt')
     output = replicate.run(
         "nateraw/nous-hermes-llama2-awq:c71045fdc98cb810b828c43bc1421dfa6d6f5607105b91587665e3cfddcfda75",
-        input={"prompt": "what is 2+2"}
+        input={"prompt": prompt}
     )
     # The nateraw/nous-hermes-llama2-awq model can stream output as it's running.
     # The predict method returns an iterator, and you can iterate over that output.
