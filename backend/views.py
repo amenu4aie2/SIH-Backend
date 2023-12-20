@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import json
 from django.http import JsonResponse
-from .models import Employee
+from .models import Employee,Audio
 from .textanalysis import doT
 from django.views.decorators.csrf import csrf_exempt
 import datetime
@@ -14,6 +14,7 @@ def index(request):
 def store(request):
     if request.method == 'POST':
         data = request.POST.get('text')
+        print(data)
         s = str(data)
         senetnces = []
         sent = ''
@@ -22,6 +23,7 @@ def store(request):
             if i=='.' or i=='?' or i=='!':
                 senetnces.append(i)
                 sent = ''
+        senetnces.append(sent)
         res = {}
         for i in senetnces:
             t = doT(i)
@@ -34,9 +36,11 @@ def store(request):
                 res[t['label']]+=1
             else:
                 res[t['label']] = 1
+        print(res,type(res))
         res = json.dumps(res)
+        print(res,type(res))
         # jsont to string
-        res = str(res).replace('\"','')
+        
         empName = request.POST.get('empName')
         dateNow = datetime.datetime.now()
         emp = Employee(name=empName,date=dateNow ,jsonData=res)
@@ -79,3 +83,45 @@ def getEmps(request):
     emp = EmployeeSerializer(emp,many=True)
     print(emp.data)
     return JsonResponse({'data':emp.data})
+
+import replicate
+import os
+os.environ["REPLICATE_API_TOKEN"] = "r8_Zgy3QtTt9akCXmztPXRasxZWDHBnjGh3gFIFx"
+
+def replme(request):
+    prompt = request.GET.get('prompt')
+    output = replicate.run(
+        "nateraw/nous-hermes-llama2-awq:c71045fdc98cb810b828c43bc1421dfa6d6f5607105b91587665e3cfddcfda75",
+        input={"prompt": prompt}
+    )
+    # The nateraw/nous-hermes-llama2-awq model can stream output as it's running.
+    # The predict method returns an iterator, and you can iterate over that output.
+    s = ''
+    for item in output:
+        # https://replicate.com/nateraw/nous-hermes-llama2-awq/api#output-schema
+        s += item
+        print(item, end="")
+    return JsonResponse({'data':s})
+from .combinedObject import triModel
+
+from django.conf import settings
+@csrf_exempt
+def runModel(request):
+    file = request.FILES.get("file")
+    
+    audio = Audio(file=file)
+    audio.save()
+    file_path = os.path.join(settings.MEDIA_ROOT, audio.file.name)
+    print(file_path)
+
+    # Uncomment the following lines if you want to use a model for prediction
+    model1 = triModel()
+    prediction = model1.main(file_path)   
+    print(prediction)
+    # {'modelID': 1, 'emotion': 'angry', 'accuracy': 0.80341476}
+    for i in prediction:
+        i['accuracy'] = float(i['accuracy'])
+    return JsonResponse({'data': prediction})
+    
+
+

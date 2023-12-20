@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'backend',
+    'corsheaders',
 ]
 # Allow specific methods
 CORS_ALLOW_METHODS = [
@@ -60,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'sihbackend.urls'
@@ -81,6 +84,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'sihbackend.wsgi.application'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Adjust this to match your React app's origin
+    # all origins
+    
+]
 
 
 # Database
