@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import json
 from django.http import JsonResponse
-from .models import Employee
+from .models import Employee,Audio
 from .textanalysis import doT
 from django.views.decorators.csrf import csrf_exempt
 import datetime
@@ -102,4 +102,26 @@ def replme(request):
         s += item
         print(item, end="")
     return JsonResponse({'data':s})
+from .combinedObject import triModel
+
+from django.conf import settings
+@csrf_exempt
+def runModel(request):
+    file = request.FILES.get("file")
+    
+    audio = Audio(file=file)
+    audio.save()
+    file_path = os.path.join(settings.MEDIA_ROOT, audio.file.name)
+    print(file_path)
+
+    # Uncomment the following lines if you want to use a model for prediction
+    model1 = triModel()
+    prediction = model1.main(file_path)   
+    print(prediction)
+    # {'modelID': 1, 'emotion': 'angry', 'accuracy': 0.80341476}
+    for i in prediction:
+        i['accuracy'] = float(i['accuracy'])
+    return JsonResponse({'data': prediction})
+    
+
 

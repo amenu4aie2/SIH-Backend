@@ -8,5 +8,6 @@ urlpatterns = [
     path('getEmp/', views.getEmp, name='getEmp'),
     path('getEmps/', views.getEmps, name='getEmps'),
     path('replme/', views.replme, name='replme'),
+    path('runModel/', views.runModel, name='runModel'),
     # Add more paths here
 ]
